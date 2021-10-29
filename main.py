@@ -1,3 +1,5 @@
+# Amber Harding
+# CSCI 261 Assignment 4
 from random import randrange
 
 
@@ -8,46 +10,86 @@ def max2(x, y):                 # Find Max of 2 numbers
     return max
 
 
-def fSelect(xs, i):
-    if xs:
-        for x in xs:
-            if x == xs[i]:
-                return x
+def fSelect(xs, index):
+    for i in range(len(xs) - 1):
+        minIndx = i
+        minVal = xs[i]
+        j = i+1
+        while j < len(xs):
+            if minVal > xs[j]:
+                minIndx = j
+                minVal = xs[j]
+            j += 1
+        if minIndx != i:
+            temp = xs[i]
+            xs[i] = xs[minIndx]
+            xs[minIndx] = temp
+    print(xs)
+    return xs[index]
+
+
+def iSelect(xs, index):
+    l = 0
+    h = len(xs) - 1
+    return iSelectHelper(xs, index, l, h)
+
+
+def iSelectHelper(xs, index, l, r):
+    # If the list contains only one element, return that element
+    if l == r:
+        return xs[l]
+
+    # select `pIndex` between left and right
+    pIndex = randrange(l, r)
+
+    pIndex = partition(xs, index, l, r)
+
+    # The pivot is in its sorted position
+    if index == pIndex:
+        return xs[index]
+
+    # if `index` is less than the pivot index
+    elif index < pIndex:
+        return iSelectHelper(xs, index, l, pIndex - 1)
+
+    # if `index` is more than the pivot index
     else:
-        return "Error Empty list"
+        return iSelectHelper(xs, index, pIndex + 1, r)
 
 
-def iSelect(xs, k):
-    if len(xs) == 1:
-        return xs[0]
-    else:
-        xpart = partition(xs, randrange(len(xs)))
-        x = xpart[0]  # partitioned array
-        j = xpart[1]  # pivot index
-        if j == k:
-            return x[j]
-        elif j > k:
-            return iSelect(x[:j], k)
-        else:
-            k = k - j - 1
-            return iSelect(x[(j + 1):], k)
+def swap(xs, i, j):
+    temp = xs[i]
+    xs[i] = xs[j]
+    xs[j] = temp
 
 
-def partition(x, pivot_index):
-    i = 0
-    if pivot_index != 0: x[0], x[pivot_index] = x[pivot_index], x[0]
-    for j in range(len(x) - 1):
-        if x[j + 1] < x[0]:
-            x[j + 1], x[i + 1] = x[i + 1], x[j + 1]
-            i += 1
-    x[0], x[i] = x[i], x[0]
-    return x, i
+def partition(xs, index, l, r):
+    # Pick `pIndex` as a pivot from the list
+    pivot = xs[index]
+
+    # Move pivot to end
+    swap(xs, index, r)
+
+    # elements less than the pivot will be pushed to the left of `pIndex`;
+    # elements more than the pivot will be pushed to the right of `pIndex`;
+    # equal elements can go either way
+    pIndex = l
+
+    # each time we find an element less than or equal to the pivot, `pIndex`
+    # is incremented, and that element would be placed before the pivot.
+    for i in range(l, r):
+        if xs[i] <= pivot:
+            swap(xs, i, pIndex)
+            pIndex = pIndex + 1
+
+    # Move pivot to its place
+    swap(xs, pIndex, r)
+
+    # return `pIndex` (index of the pivot element)
+    return pIndex
 
 
 if __name__ == '__main__':
-    xs = [2, 8, 3, 1, 4, 0, 7, 3, 11]
-    #print(str(fSelect(xs, 2)))
-    print(iSelect(xs, 3))        # supposed to return 1
-    print(xs[iSelect(xs, 3)])
-    #print(max(90, 9))
-
+    xs = [1, 0, 5, 6, 3, 7, 2, 1, 8]
+    print(fSelect(xs, 7))
+    print(iSelect(xs, 2))
